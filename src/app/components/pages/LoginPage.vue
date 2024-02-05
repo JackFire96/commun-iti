@@ -18,14 +18,22 @@ const userNameRegex = /^(\w+)$/i;
 
 const loginFormRules = reactive<FormRules>({
   username: [
-  
+    {
+      required: true,
+      message: "Pseudo obligatoire",
+      pattern: userNameRegex
+    }
   ],
   password: [
-  
+    {
+      required: true,
+      message: "Mot de passe obligatoire"
+    }
+      
   ]
 });
 
-async function onSubmit(form?: FormInstance) {
+async function onSubmit(this: any, form?: FormInstance) {
   if (!form) {
     return;
   }
@@ -33,7 +41,14 @@ async function onSubmit(form?: FormInstance) {
   try {
     await form.validate();
 
+    await authService.authenticate({
+          username: this.form.username,
+          password: this.form.password,
+    });
+
+    this.$router.push('/app');
   } catch (e) {
+    console.error("Erreur d'authentification :", e);
     return;
   }
 }
@@ -53,8 +68,9 @@ async function onSubmit(form?: FormInstance) {
           @submit.prevent=""
         >
           <el-form-item label="Pseudo" prop="username"> </el-form-item>
-
+          <el-input type="text" name="Pseudo"></el-input>
           <el-form-item label="Mot de passe" prop="password"> </el-form-item>
+          <el-input type="password" name="Mot de passe"></el-input>
 
           <el-form-item>
             <div class="form-actions">

@@ -12,7 +12,11 @@ function selectRoom(room: Room) {
 
 <template>
   <nav class="room-list">
-    
+    <ul>
+      <li v-for="room in rooms" :key="room.id" @click="selectRoom(room)">
+        {{ room.name }}
+      </li>
+    </ul>
   </nav>
 </template>
 

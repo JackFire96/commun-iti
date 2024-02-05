@@ -13,7 +13,7 @@ const router = useRouter();
 const registerModel = reactive({
   username: "",
   password: "",
-  passwordConfirmation: ""
+  passwordConfirmation: "" 
 });
 
 const userNameRegex = /^(\w+)$/i;
@@ -22,23 +22,51 @@ const registerFormRules = reactive<FormRules>({
   username: [
     {
       required: true,
-      message: "Pseudo obligatoire"
+      message: "Pseudo obligatoire",
+      pattern: userNameRegex
     }
   ],
-  password: [],
-  passwordConfirmation: []
+  password: [
+    {
+      required: true,
+      message: "Mot de passe obligatoire"
+    }
+  ],
+  passwordConfirmation: [
+    {
+      required: true,
+      message: "Confirmation du mot de passe obligatoire"
+    }
+  ]
 });
 
-async function onSubmit(form?: FormInstance) {
+async function onSubmit(this: any, form?: FormInstance) {
   if (!form) {
-    return;
+    return "le formulaire ne peux pas être vide";
   }
 
   try {
     await form.validate();
+    if (this.form.password !== this.form.passwordConfirmation) {
+        console.error("Les mots de passe ne correspondent pas");
+        return;
+      }
   } catch (e) {
-    return;
+    return e;
   }
+
+
+  try {
+        await userApi.register({
+          username: this.form.username,
+          password: this.form.password
+        });
+        this.$router.push({ name: 'loginPage' });
+
+      } catch (error) {
+        // Une erreur s'est produite lors de l'enregistrement de l'utilisateur, afficher ou gérer l'erreur
+        console.error("Erreur lors de l'enregistrement de l'utilisateur :", error);
+      }
 }
 </script>
 <template>
@@ -59,9 +87,12 @@ async function onSubmit(form?: FormInstance) {
             <el-input v-model="registerModel.username" />
           </el-form-item>
 
-          <el-form-item label="Mot de passe" prop="password"> </el-form-item>
+          <el-form-item label="Mot de passe" prop="password">
+            <el-input v-model="registerModel.password" />
+          </el-form-item>
 
           <el-form-item label="Confirmez votre mot de passe" prop="passwordConfirmation">
+            <el-input v-model="registerModel.passwordConfirmation" />
           </el-form-item>
 
           <el-form-item>
